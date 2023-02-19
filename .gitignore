@@ -4,4 +4,3 @@ config.py
 .idea/
 env/
 __pycache__/
-env/

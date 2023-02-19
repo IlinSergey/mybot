@@ -4,7 +4,7 @@ import datetime
 import ephem
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, \
-    MessageHandler, CallbackQueryHandler, filters
+                         MessageHandler, CallbackQueryHandler, filters
 
 from config import TG_API_KEY
 
