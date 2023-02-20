@@ -1,5 +1,6 @@
 import ephem
 from datetime import datetime
+from random import randint
 
 
 def find_constellation(planet: str) -> tuple:
@@ -24,3 +25,14 @@ def find_constellation(planet: str) -> tuple:
         planet_query = ephem.Pluto(date)
     constellation = ephem.constellation(planet_query)
     return constellation
+
+
+def play_random_number(user_number: int) -> str:
+    bot_number = randint(user_number - 10, user_number + 10)
+    if bot_number < user_number:
+        message = f"Ваше число {user_number}, мое число {bot_number}. Вы выиграли!"
+    elif bot_number > user_number:
+        message = f"Ваше число {user_number}, мое число {bot_number}. Я выиграл!"
+    else:
+        message = f"Ваше число {user_number}, мое число {bot_number}. Ничья!"
+    return message
