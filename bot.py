@@ -1,7 +1,8 @@
 import logging
 import datetime
 
-from handlers import start, hello, planet, take_constellation, echo, guess_number
+from handlers import (start, hello, planet, take_constellation, 
+                      echo, guess_number, send_cat_picture)
 from telegram.ext import (ApplicationBuilder, CommandHandler,
                          MessageHandler, CallbackQueryHandler, filters)
 
@@ -23,6 +24,7 @@ def main():
     mybot.add_handler(CommandHandler("hello", hello))
     mybot.add_handler(CommandHandler("planet", planet))
     mybot.add_handler(CommandHandler("guess", guess_number))
+    mybot.add_handler(CommandHandler("cat", send_cat_picture))
 
     mybot.add_handler(CallbackQueryHandler(take_constellation))
 

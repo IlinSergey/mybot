@@ -1,4 +1,6 @@
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from glob import glob
+from random import choice
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
 from utils import find_constellation, play_random_number
@@ -58,3 +60,10 @@ async def guess_number(update: Update, context: ContextTypes.DEFAULT_TYPE):
         message = "Введите число"
     await context.bot.send_message(chat_id=update.effective_chat.id,
                                    text=message)
+
+
+async def send_cat_picture(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    cat_pictures_list = glob("images/cat*.jp*g")
+    cat_picture_filename = choice(cat_pictures_list)
+    await context.bot.send_photo(chat_id=update.effective_chat.id,
+                                   photo=open(cat_picture_filename, mode="rb"))
