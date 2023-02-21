@@ -1,28 +1,44 @@
 from glob import glob
+import logging
 from random import choice
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
+from utils import find_constellation, play_random_number, get_smile
 
-from utils import find_constellation, play_random_number
+
+logging.basicConfig(
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    filename="bot.log",
+    level=logging.INFO
+)
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    logging.info("Вызвана команда /start")
+    context.user_data["emoji"] = get_smile(context.user_data)
+    smile = context.user_data["emoji"]
     await context.bot.send_message(chat_id=update.effective_chat.id,
-                                   text="Я бот, поговори со мной!")
-
+                                   text=f"Я бот{smile}, поговори со мной!")
 
 
 async def hello(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    logging.info("Вызвана команда /hello")
+    context.user_data["emoji"] = get_smile(context.user_data)
+    smile = context.user_data["emoji"]
     await context.bot.send_message(chat_id=update.effective_chat.id,
-                                   text=f"Привет {update.effective_user.first_name}")
+                                   text=f"Привет {update.effective_user.first_name}{smile}")
 
 
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    logging.info("Вызвана команда /echo")
+    context.user_data["emoji"] = get_smile(context.user_data)
+    smile = context.user_data["emoji"]
     await context.bot.send_message(chat_id=update.effective_chat.id,
-                                   text=update.message.text)
+                                   text=f"{update.message.text}{smile}")
 
 
 async def planet(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    logging.info("Вызвана команда /planet")
     keyboard = [
         [
             InlineKeyboardButton("Меркурий", callback_data="Mercury"),
@@ -42,6 +58,7 @@ async def planet(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def take_constellation(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    logging.info("Вызвана команда /take_constellation")
     query = update.callback_query
     await query.answer()
     constellation = find_constellation(query.data)
@@ -49,7 +66,7 @@ async def take_constellation(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
 
 async def guess_number(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    print(context.args)
+    logging.info("Вызвана команда /guess_number")
     if context.args:
         try:
             user_number = int(context.args[0])
@@ -63,6 +80,7 @@ async def guess_number(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def send_cat_picture(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    logging.info("Вызвана команда /send_cat_picture")
     cat_pictures_list = glob("images/cat*.jp*g")
     cat_picture_filename = choice(cat_pictures_list)
     await context.bot.send_photo(chat_id=update.effective_chat.id,

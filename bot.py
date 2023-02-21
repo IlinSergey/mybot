@@ -1,6 +1,4 @@
 import logging
-import datetime
-
 from handlers import (start, hello, planet, take_constellation, 
                       echo, guess_number, send_cat_picture)
 from telegram.ext import (ApplicationBuilder, CommandHandler,
@@ -15,9 +13,9 @@ logging.basicConfig(
     level=logging.INFO
 )
 
+
 def main():
     mybot = ApplicationBuilder().token(TG_API_KEY).build()
-
     logging.info("Бот стартовал")
 
     mybot.add_handler(CommandHandler("start", start))

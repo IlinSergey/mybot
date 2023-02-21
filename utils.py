@@ -1,6 +1,15 @@
+from emoji import emojize
 import ephem
 from datetime import datetime
-from random import randint
+from random import randint, choice
+from config import USER_EMOJI
+
+
+def get_smile(user_data: dict):
+    if "emoji" not in user_data:
+        smile = choice(USER_EMOJI)
+        return emojize(smile, language='alias')
+    return user_data["emoji"]
 
 
 def find_constellation(planet: str) -> tuple:
