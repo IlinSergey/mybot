@@ -1,11 +1,11 @@
 import logging
-from handlers import (start, hello, planet, take_constellation, 
-                      echo, guess_number, send_cat_picture)
-from telegram.ext import (ApplicationBuilder, CommandHandler,
-                         MessageHandler, CallbackQueryHandler, filters)
+
+from telegram.ext import (ApplicationBuilder, CallbackQueryHandler,
+                          CommandHandler, MessageHandler, filters)
 
 from config import TG_API_KEY
-
+from handlers import (echo, guess_number, hello, planet, send_cat_picture,
+                      start, take_constellation)
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",

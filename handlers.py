@@ -1,10 +1,11 @@
-from glob import glob
 import logging
+from glob import glob
 from random import choice
+
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
-from utils import find_constellation, play_random_number, get_smile
 
+from utils import find_constellation, get_smile, play_random_number
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",

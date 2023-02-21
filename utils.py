@@ -1,7 +1,9 @@
-from emoji import emojize
-import ephem
 from datetime import datetime
-from random import randint, choice
+from random import choice, randint
+
+import ephem
+from emoji import emojize
+
 from config import USER_EMOJI
 
 
