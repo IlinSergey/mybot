@@ -3,6 +3,7 @@ from random import choice, randint
 
 import ephem
 from emoji import emojize
+from telegram import ReplyKeyboardMarkup, KeyboardButton
 
 from config import USER_EMOJI
 
@@ -47,3 +48,7 @@ def play_random_number(user_number: int) -> str:
     else:
         message = f"Ваше число {user_number}, мое число {bot_number}. Ничья!"
     return message
+
+def main_keyboard():
+    return ReplyKeyboardMarkup([["Прислать котика", 
+                                 KeyboardButton("Мои координаты", request_location=True)]], resize_keyboard=True)

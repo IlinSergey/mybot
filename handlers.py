@@ -5,7 +5,7 @@ from random import choice
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
-from utils import find_constellation, get_smile, play_random_number
+from utils import find_constellation, get_smile, play_random_number, main_keyboard
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -17,25 +17,25 @@ logging.basicConfig(
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logging.info("Вызвана команда /start")
     context.user_data["emoji"] = get_smile(context.user_data)
-    smile = context.user_data["emoji"]
-    await context.bot.send_message(chat_id=update.effective_chat.id,
-                                   text=f"Я бот{smile}, поговори со мной!")
+    smile = context.user_data["emoji"]    
+    await update.message.reply_text(f"Я бот{smile}, поговори со мной!",
+                                     reply_markup=main_keyboard())    
 
 
 async def hello(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logging.info("Вызвана команда /hello")
     context.user_data["emoji"] = get_smile(context.user_data)
     smile = context.user_data["emoji"]
-    await context.bot.send_message(chat_id=update.effective_chat.id,
-                                   text=f"Привет {update.effective_user.first_name}{smile}")
-
+    await update.message.reply_text(f"Привет {update.effective_user.first_name}{smile}",
+                                     reply_markup=main_keyboard())      
+   
 
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logging.info("Вызвана команда /echo")
     context.user_data["emoji"] = get_smile(context.user_data)
     smile = context.user_data["emoji"]
-    await context.bot.send_message(chat_id=update.effective_chat.id,
-                                   text=f"{update.message.text}{smile}")
+    await update.message.reply_text(f"{update.message.text}{smile}",
+                                     reply_markup=main_keyboard())
 
 
 async def planet(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -85,4 +85,13 @@ async def send_cat_picture(update: Update, context: ContextTypes.DEFAULT_TYPE):
     cat_pictures_list = glob("images/cat*.jp*g")
     cat_picture_filename = choice(cat_pictures_list)
     await context.bot.send_photo(chat_id=update.effective_chat.id,
-                                   photo=open(cat_picture_filename, mode="rb"))
+                                   photo=open(cat_picture_filename, mode="rb"), 
+                                   reply_markup=main_keyboard())
+
+
+async def user_coordinates(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    context.user_data["emoji"] = get_smile(context.user_data)
+    coords = update.message.location  
+    await update.message.reply_text(f"Ваши координаты: широта = {coords.latitude} долгота = {coords.longitude}, \
+                                    {context.user_data['emoji']}!", reply_markup=main_keyboard())
+    

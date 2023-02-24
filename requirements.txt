@@ -1,5 +1,6 @@
 anyio==3.6.2
 certifi==2022.12.7
+clarifai-grpc==9.1.2
 ephem==4.1.4
 h11==0.14.0
 h2==4.1.0
