@@ -1,11 +1,12 @@
 import logging
 from glob import glob
+import os
 from random import choice
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
-from utils import find_constellation, get_smile, play_random_number, main_keyboard
+from utils import find_constellation, get_smile, play_random_number, main_keyboard, has_object_on_image
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -90,8 +91,23 @@ async def send_cat_picture(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def user_coordinates(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    logging.info("Присланы координаты пользователя")
     context.user_data["emoji"] = get_smile(context.user_data)
     coords = update.message.location  
     await update.message.reply_text(f"Ваши координаты: широта = {coords.latitude} долгота = {coords.longitude}, \
                                     {context.user_data['emoji']}!", reply_markup=main_keyboard())
     
+
+async def check_user_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("Обрабатываем фото")
+    os.makedirs("downloads", exist_ok=True)
+    photo_file = await context.bot.get_file(update.message.photo[-1].file_id)    
+    file_name = os.path.join("downloads", f"{update.message.photo[-1].file_id}.jpg")    
+    await photo_file.download_to_drive(file_name)    
+    if has_object_on_image(file_name, "cat"):
+        await update.message.reply_text("Обнаружен котик, сохраняю в библиотеку")
+        new_file_name = os.path.join("images", f"cat_{photo_file.file_id}.jpg")
+        os.rename(file_name, new_file_name)
+    else:
+        os.remove(file_name)
+        await update.message.reply_text("Котик не обнаружен!")

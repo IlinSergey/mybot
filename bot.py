@@ -5,7 +5,7 @@ from telegram.ext import (ApplicationBuilder, CallbackQueryHandler,
 
 from config import TG_API_KEY
 from handlers import (echo, guess_number, hello, planet, send_cat_picture,
-                      start, take_constellation, user_coordinates)
+                      start, take_constellation, user_coordinates, check_user_photo)
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -25,6 +25,7 @@ def main():
     mybot.add_handler(CommandHandler("cat", send_cat_picture))
     mybot.add_handler(MessageHandler(filters.Regex("^(Прислать котика)$"), send_cat_picture))
     mybot.add_handler(MessageHandler(filters.LOCATION, user_coordinates))
+    mybot.add_handler(MessageHandler(filters.PHOTO, check_user_photo))
 
     mybot.add_handler(CallbackQueryHandler(take_constellation))
 
