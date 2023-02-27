@@ -64,13 +64,13 @@ def has_object_on_image(file_name: str, object_name: str) -> bool:
     app = service_pb2_grpc.V2Stub(channel)
     metadata = (("authorization", f"Key {CLARYFAI_API_KEY}"),)
 
-    with open(file_name, "rb") as f:
-        file_data = f.read()
-        image = resources_pb2.Image(base64=file_data)
-
     request = service_pb2.PostModelOutputsRequest(
         model_id=CLARYFAI_MODEL_ID_VERSION["default"],
-        inputs=[resources_pb2.Input(data=resources_pb2.Data(image=image))],
+        inputs=[
+            resources_pb2.Input(
+                data=resources_pb2.Data(image=resources_pb2.Image(url=file_name))
+            )
+        ],
     )
     response = app.PostModelOutputs(request, metadata=metadata)
     return check_response_for_object(response, object_name)

@@ -115,15 +115,15 @@ async def user_coordinates(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def check_user_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """
+    Проверяем присланное фото, если на фото присутствует нужный обьект (по умолчанию 'cat')
+    - сохраняем фото в библиотеку
+    """
     await update.message.reply_text("Обрабатываем фото...")
-    os.makedirs("downloads", exist_ok=True)
     photo_file = await context.bot.get_file(update.message.photo[-1].file_id)
-    file_name = os.path.join("downloads", f"{update.message.photo[-1].file_id}.jpg")
-    await photo_file.download_to_drive(file_name)
-    if has_object_on_image(file_name, "cat"):
+    if has_object_on_image(photo_file["file_path"], "cat"):
         await update.message.reply_text("Обнаружен котик, сохраняю в библиотеку")
-        new_file_name = os.path.join("images", f"cat_{photo_file.file_id}.jpg")
-        os.rename(file_name, new_file_name)
+        file_name = os.path.join("images", f"cat_{photo_file.file_id}.jpg")
+        await photo_file.download_to_drive(file_name)
     else:
-        os.remove(file_name)
         await update.message.reply_text("Котик не обнаружен!")
