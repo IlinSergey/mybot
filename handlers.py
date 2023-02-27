@@ -120,10 +120,10 @@ async def check_user_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     - сохраняем фото в библиотеку
     """
     await update.message.reply_text("Обрабатываем фото...")
-    photo_file = await context.bot.get_file(update.message.photo[-1].file_id)
-    if has_object_on_image(photo_file["file_path"], "cat"):
+    photo_file_from_messsage = await context.bot.get_file(update.message.photo[-1].file_id)
+    if has_object_on_image(photo_file_from_messsage["file_path"], "cat"):
         await update.message.reply_text("Обнаружен котик, сохраняю в библиотеку")
-        file_name = os.path.join("images", f"cat_{photo_file.file_id}.jpg")
-        await photo_file.download_to_drive(file_name)
+        file_name = os.path.join("images", f"cat_{photo_file_from_messsage.file_id}.jpg")
+        await photo_file_from_messsage.download_to_drive(file_name)
     else:
         await update.message.reply_text("Котик не обнаружен!")
