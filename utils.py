@@ -8,36 +8,30 @@ import ephem
 from emoji import emojize
 from telegram import ReplyKeyboardMarkup, KeyboardButton
 
-from config import USER_EMOJI, CLARYFAI_API_KEY
+from config import USER_EMOJI, CLARYFAI_API_KEY, CLARYFAI_MODEL_ID_VERSION
 
 
 def get_smile(user_data: dict):
     if "emoji" not in user_data:
         smile = choice(USER_EMOJI)
-        return emojize(smile, language='alias')
+        return emojize(smile, language="alias")
     return user_data["emoji"]
 
 
 def find_constellation(planet: str) -> tuple:
     now = datetime.now()
     date = f"{now.year}/{now.month}/{now.day}"
-    planet_query = None
-    if planet == "Mercury":
-        planet_query = ephem.Mercury(date)
-    elif planet == "Venus":
-        planet_query = ephem.Venus(date)
-    elif planet == "Mars":
-        planet_query = ephem.Mars(date)
-    elif planet == "Jupiter":
-        planet_query = ephem.Jupiter(date)
-    elif planet == "Saturn":
-        planet_query = ephem.Saturn(date)
-    elif planet == "Uranus":
-        planet_query = ephem.Uranus(date)
-    elif planet == "Neptune":
-        planet_query = ephem.Neptune(date)
-    elif planet == "Pluto":
-        planet_query = ephem.Pluto(date)
+    planets = {
+        "Mercury": ephem.Mercury(date),
+        "Venus": ephem.Venus(date),
+        "Mars": ephem.Mars(date),
+        "Jupiter": ephem.Jupiter(date),
+        "Saturn": ephem.Saturn(date),
+        "Uranus": ephem.Uranus(date),
+        "Neptune": ephem.Neptune(date),
+        "Pluto": ephem.Pluto(date),
+    }
+    planet_query = planets[planet]
     constellation = ephem.constellation(planet_query)
     return constellation
 
@@ -52,12 +46,20 @@ def play_random_number(user_number: int) -> str:
         message = f"Ваше число {user_number}, мое число {bot_number}. Ничья!"
     return message
 
-def main_keyboard():
-    return ReplyKeyboardMarkup([["Прислать котика", 
-                                KeyboardButton("Мои координаты", request_location=True)]],
-                                resize_keyboard=True)
 
-def has_object_on_image(file_name: str, object_name: str):
+def main_keyboard():
+    return ReplyKeyboardMarkup(
+        [["Прислать котика", KeyboardButton("Мои координаты", request_location=True)]],
+        resize_keyboard=True,
+    )
+
+
+def has_object_on_image(file_name: str, object_name: str) -> bool:
+    """
+    Функция, при помощи сервиса 'Clarifai', проверяет наличие обьекта 'object_name'
+    на изображении 'file_name'. При вероятности наличия обьекта на изображении >= 90%
+    возвращает 'True', иначе 'False'.
+    """
     channel = ClarifaiChannel.get_grpc_channel()
     app = service_pb2_grpc.V2Stub(channel)
     metadata = (("authorization", f"Key {CLARYFAI_API_KEY}"),)
@@ -65,16 +67,16 @@ def has_object_on_image(file_name: str, object_name: str):
     with open(file_name, "rb") as f:
         file_data = f.read()
         image = resources_pb2.Image(base64=file_data)
-    
+
     request = service_pb2.PostModelOutputsRequest(
-        model_id="aaa03c23b3724a16a56b629203edc62c",
-        inputs=[resources_pb2.Input(data=resources_pb2.Data(image=image))]
+        model_id=CLARYFAI_MODEL_ID_VERSION["default"],
+        inputs=[resources_pb2.Input(data=resources_pb2.Data(image=image))],
     )
     response = app.PostModelOutputs(request, metadata=metadata)
     return check_response_for_object(response, object_name)
 
 
-def check_response_for_object(response, object_name):
+def check_response_for_object(response, object_name: str) -> bool:
     if response.status.code == status_code_pb2.SUCCESS:
         for concept in response.outputs[0].data.concepts:
             if concept.name == object_name and concept.value >= 0.90:
