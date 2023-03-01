@@ -3,11 +3,20 @@ import logging
 from telegram.ext import (
     ApplicationBuilder,
     CallbackQueryHandler,
+    ConversationHandler,
     CommandHandler,
     MessageHandler,
     filters,
 )
 
+from questionnaire import (
+    questionnaire_start,
+    questionnaire_name,
+    questionnaire_rating,
+    questionnaire_skip,
+    questionnaire_comment,
+    questionnaire_dontknow,
+)
 from config import TG_API_KEY
 from handlers import (
     echo,
@@ -32,6 +41,33 @@ def main():
     mybot = ApplicationBuilder().token(TG_API_KEY).build()
     logging.info("Бот стартовал")
 
+    questionnaire = ConversationHandler(
+        entry_points=[
+            MessageHandler(filters.Regex("^(Заполнить анкету)$"), questionnaire_start)
+        ],
+        states={
+            "name": [MessageHandler(filters.TEXT, questionnaire_name)],
+            "rating": [
+                MessageHandler(filters.Regex("^(1|2|3|4|5)$"), questionnaire_rating)
+            ],
+            "comment": [
+                CommandHandler("skip", questionnaire_skip),
+                MessageHandler(filters.TEXT, questionnaire_comment),
+            ],
+        },
+        fallbacks=[
+            MessageHandler(
+                filters.TEXT
+                | filters.PHOTO
+                | filters.VIDEO
+                | filters.Document.ALL
+                | filters.LOCATION,
+                questionnaire_dontknow,
+            )
+        ],
+    )
+
+    mybot.add_handler(questionnaire)
     mybot.add_handler(CommandHandler("start", start))
     mybot.add_handler(CommandHandler("hello", hello))
     mybot.add_handler(CommandHandler("planet", planet))
