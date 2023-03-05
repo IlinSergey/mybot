@@ -15,7 +15,10 @@ USER_EMOJI = [
     ":smile:",  ":stuck_out_tongue_closed_eyes:", ":grimacing:", ":cat:",
     ":dog:", ":mouse:", ":rabbit:", ":bear:",
 ]
+
 ```
+В сисок USER_EMOJI можно добавить любые emoji на ваше усмотрение. Например, с сайта https://www.webfx.com/tools/emoji-cheat-sheet/
+
 6. Запустите бота командой `python bot.py`
 
 ### Функционал бота
