@@ -1,21 +1,20 @@
+import logging
 from datetime import datetime
-from random import choice, randint
+from random import randint
 
+import ephem
 from clarifai_grpc.channel.clarifai_channel import ClarifaiChannel
 from clarifai_grpc.grpc.api import resources_pb2, service_pb2, service_pb2_grpc
-from clarifai_grpc.grpc.api.status import status_pb2, status_code_pb2
-import ephem
-from emoji import emojize
-from telegram import ReplyKeyboardMarkup, KeyboardButton
+from clarifai_grpc.grpc.api.status import status_code_pb2
+from telegram import KeyboardButton, ReplyKeyboardMarkup
 
-from config import USER_EMOJI, CLARYFAI_API_KEY, CLARYFAI_MODEL_ID_VERSION
+from config import CLARYFAI_API_KEY, CLARYFAI_MODEL_ID_VERSION
 
-
-def get_smile(user_data: dict):
-    if "emoji" not in user_data:
-        smile = choice(USER_EMOJI)
-        return emojize(smile, language="alias")
-    return user_data["emoji"]
+logging.basicConfig(
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    filename="bot.log",
+    level=logging.INFO,
+)
 
 
 def find_constellation(planet: str) -> tuple:
@@ -49,7 +48,13 @@ def play_random_number(user_number: int) -> str:
 
 def main_keyboard():
     return ReplyKeyboardMarkup(
-        [["Прислать котика", KeyboardButton("Мои координаты", request_location=True)]],
+        [
+            [
+                "Прислать котика",
+                KeyboardButton("Мои координаты", request_location=True),
+                "Заполнить анкету",
+            ]
+        ],
         resize_keyboard=True,
     )
 
@@ -60,6 +65,7 @@ def has_object_on_image(file_name: str, object_name: str) -> bool:
     на изображении 'file_name'. При вероятности наличия обьекта на изображении >= 90%
     возвращает 'True', иначе 'False'.
     """
+    logging.info("Отправляем фото в Clarifai")
     channel = ClarifaiChannel.get_grpc_channel()
     app = service_pb2_grpc.V2Stub(channel)
     metadata = (("authorization", f"Key {CLARYFAI_API_KEY}"),)

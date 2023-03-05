@@ -1,7 +1,10 @@
 import logging
-from telegram import ReplyKeyboardRemove, Update, ReplyKeyboardMarkup
+
+from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
 from telegram.constants import ParseMode
 from telegram.ext import ContextTypes, ConversationHandler
+
+from db import db, get_or_create_user, save_questionnaire
 from utils import main_keyboard
 
 logging.basicConfig(
@@ -20,7 +23,7 @@ async def questionnaire_start(update: Update, context: ContextTypes.DEFAULT_TYPE
 
 
 async def questionnaire_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    logging.info("Вызван запрос Имени")
+    logging.info("Вызван запрос имени")
     user_name = update.message.text
     if len(user_name.split()) < 2:
         await update.message.reply_text("Пожалуйста введите имя и фамилию!")
@@ -49,6 +52,8 @@ async def questionnaire_rating(update: Update, context: ContextTypes.DEFAULT_TYP
 async def questionnaire_comment(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logging.info("Вызван запрос комментария")
     context.user_data["questionnaire"]["comment"] = update.message.text
+    user = get_or_create_user(db, update.effective_user, update.message.chat_id)
+    save_questionnaire(db, user["user_id"], context.user_data["questionnaire"])
     user_text = format_questionnaire(context.user_data["questionnaire"])
     await update.message.reply_text(
         user_text, reply_markup=main_keyboard(), parse_mode=ParseMode.HTML
@@ -58,6 +63,8 @@ async def questionnaire_comment(update: Update, context: ContextTypes.DEFAULT_TY
 
 async def questionnaire_skip(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logging.info("Вызвана команда 'пропустить комментарий'")
+    user = get_or_create_user(db, update.effective_user, update.message.chat_id)
+    save_questionnaire(db, user["user_id"], context.user_data["questionnaire"])
     user_text = format_questionnaire(context.user_data["questionnaire"])
     await update.message.reply_text(
         user_text, reply_markup=main_keyboard(), parse_mode=ParseMode.HTML

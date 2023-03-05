@@ -2,3 +2,4 @@ clarifai-grpc==9.1.2
 ephem==4.1.4
 python-telegram-bot==20.1
 emoji==2.2.0
+pymongo==4.3.3

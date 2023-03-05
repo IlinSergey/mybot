@@ -6,9 +6,9 @@ from random import choice
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
+from db import db, get_or_create_user
 from utils import (
     find_constellation,
-    get_smile,
     play_random_number,
     main_keyboard,
     has_object_on_image,
@@ -23,17 +23,8 @@ logging.basicConfig(
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logging.info("Вызвана команда /start")
-    context.user_data["emoji"] = get_smile(context.user_data)
-    smile = context.user_data["emoji"]
-    await update.message.reply_text(
-        f"Я бот{smile}, поговори со мной!", reply_markup=main_keyboard()
-    )
-
-
-async def hello(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    logging.info("Вызвана команда /hello")
-    context.user_data["emoji"] = get_smile(context.user_data)
-    smile = context.user_data["emoji"]
+    user = get_or_create_user(db, update.effective_user, update.message.chat_id)
+    smile = user["emoji"]
     await update.message.reply_text(
         f"Привет {update.effective_user.first_name}{smile}",
         reply_markup=main_keyboard(),
@@ -42,8 +33,8 @@ async def hello(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logging.info("Вызвана команда /echo")
-    context.user_data["emoji"] = get_smile(context.user_data)
-    smile = context.user_data["emoji"]
+    user = get_or_create_user(db, update.effective_user, update.message.chat_id)
+    smile = user["emoji"]
     await update.message.reply_text(
         f"{update.message.text}{smile}", reply_markup=main_keyboard()
     )
@@ -51,6 +42,7 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def planet(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logging.info("Вызвана команда /planet")
+    user = get_or_create_user(db, update.effective_user, update.message.chat_id)
     keyboard = [
         [
             InlineKeyboardButton("Меркурий", callback_data="Mercury"),
@@ -81,6 +73,7 @@ async def take_constellation(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
 async def guess_number(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logging.info("Вызвана команда /guess_number")
+    user = get_or_create_user(db, update.effective_user, update.message.chat_id)
     if context.args:
         try:
             user_number = int(context.args[0])
@@ -94,6 +87,7 @@ async def guess_number(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def send_cat_picture(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logging.info("Вызвана команда /send_cat_picture")
+    user = get_or_create_user(db, update.effective_user, update.message.chat_id)
     cat_pictures_list = glob("images/cat*.jp*g")
     cat_picture_filename = choice(cat_pictures_list)
     await context.bot.send_photo(
@@ -105,11 +99,11 @@ async def send_cat_picture(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def user_coordinates(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logging.info("Присланы координаты пользователя")
-    context.user_data["emoji"] = get_smile(context.user_data)
+    user = get_or_create_user(db, update.effective_user, update.message.chat_id)
     coords = update.message.location
     await update.message.reply_text(
         f"Ваши координаты: широта = {coords.latitude} долгота = {coords.longitude}, \
-                                    {context.user_data['emoji']}!",
+                                    {user['emoji']}!",
         reply_markup=main_keyboard(),
     )
 
@@ -119,6 +113,8 @@ async def check_user_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     Проверяем присланное фото, если на фото присутствует нужный обьект (по умолчанию 'cat')
     - сохраняем фото в библиотеку
     """
+    logging.info("Присланы фотография, обрабатываем")
+    user = get_or_create_user(db, update.effective_user, update.message.chat_id)
     await update.message.reply_text("Обрабатываем фото...")
     photo_file_from_messsage = await context.bot.get_file(
         update.message.photo[-1].file_id

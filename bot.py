@@ -3,31 +3,30 @@ import logging
 from telegram.ext import (
     ApplicationBuilder,
     CallbackQueryHandler,
-    ConversationHandler,
     CommandHandler,
+    ConversationHandler,
     MessageHandler,
     filters,
 )
 
-from questionnaire import (
-    questionnaire_start,
-    questionnaire_name,
-    questionnaire_rating,
-    questionnaire_skip,
-    questionnaire_comment,
-    questionnaire_dontknow,
-)
 from config import TG_API_KEY
 from handlers import (
+    check_user_photo,
     echo,
     guess_number,
-    hello,
     planet,
     send_cat_picture,
     start,
     take_constellation,
     user_coordinates,
-    check_user_photo,
+)
+from questionnaire import (
+    questionnaire_comment,
+    questionnaire_dontknow,
+    questionnaire_name,
+    questionnaire_rating,
+    questionnaire_skip,
+    questionnaire_start,
 )
 
 logging.basicConfig(
@@ -69,7 +68,6 @@ def main():
 
     mybot.add_handler(questionnaire)
     mybot.add_handler(CommandHandler("start", start))
-    mybot.add_handler(CommandHandler("hello", hello))
     mybot.add_handler(CommandHandler("planet", planet))
     mybot.add_handler(CommandHandler("guess", guess_number))
     mybot.add_handler(CommandHandler("cat", send_cat_picture))
