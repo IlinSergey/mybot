@@ -19,6 +19,8 @@ from handlers import (
     start,
     take_constellation,
     user_coordinates,
+    subscribe,
+    unsubscribe,
 )
 from questionnaire import (
     questionnaire_comment,
@@ -28,6 +30,7 @@ from questionnaire import (
     questionnaire_skip,
     questionnaire_start,
 )
+from jobs import send_updates
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -39,6 +42,9 @@ logging.basicConfig(
 def main():
     mybot = ApplicationBuilder().token(TG_API_KEY).build()
     logging.info("Бот стартовал")
+
+    jq = mybot.job_queue
+    jq.run_repeating(send_updates, interval=10, first=0)
 
     questionnaire = ConversationHandler(
         entry_points=[
@@ -71,6 +77,8 @@ def main():
     mybot.add_handler(CommandHandler("planet", planet))
     mybot.add_handler(CommandHandler("guess", guess_number))
     mybot.add_handler(CommandHandler("cat", send_cat_picture))
+    mybot.add_handler(CommandHandler("subscribe", subscribe))
+    mybot.add_handler(CommandHandler("unsubscribe", unsubscribe))
     mybot.add_handler(
         MessageHandler(filters.Regex("^(Прислать котика)$"), send_cat_picture)
     )

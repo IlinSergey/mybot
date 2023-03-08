@@ -6,7 +6,7 @@ from random import choice
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
-from db import db, get_or_create_user
+from db import db, get_or_create_user, subscribe_user, unsubscribe_user
 from utils import (
     find_constellation,
     play_random_number,
@@ -127,3 +127,17 @@ async def check_user_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await photo_file_from_messsage.download_to_drive(file_name)
     else:
         await update.message.reply_text("Котик не обнаружен!")
+
+
+async def subscribe(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    logging.info("Вызвана комманда оформления подписки")
+    user = get_or_create_user(db, update.effective_user, update.message.chat_id)
+    subscribe_user(db, user)
+    await update.message.reply_text("Вы успешно подписались!")
+
+
+async def unsubscribe(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    logging.info("Вызвана комманда удаления подписки")
+    user = get_or_create_user(db, update.effective_user, update.message.chat_id)
+    unsubscribe_user(db, user)
+    await update.message.reply_text("Вы успешно отписались!")

@@ -36,17 +36,30 @@ def get_or_create_user(db, effective_user, chat_id) -> dict:
     return user
 
 
-def save_questionnaire(db, user_id, questionnaire_data):
+def save_questionnaire(db, user_id, questionnaire_data) -> None:
     logging.info("Сохраняем анкету в базу данных")
     user = db.users.find_one({"user_id": user_id})
     questionnaire_data["created"] = datetime.now()
     if "questionnaire" not in user:
         db.users.update_one(
-            {"_id": user["_id"]},
-            {"$set": {"questionnaire": [questionnaire_data]}}
+            {"_id": user["_id"]}, {"$set": {"questionnaire": [questionnaire_data]}}
         )
     else:
         db.users.update_one(
-            {"_id": user["_id"]},
-            {"$push": {"questionnaire": [questionnaire_data]}}
+            {"_id": user["_id"]}, {"$push": {"questionnaire": [questionnaire_data]}}
         )
+
+
+def subscribe_user(db, user_data) -> None:
+    logging.info("Оформляем подписку в ДБ")
+    if not user_data.get("subscribed"):
+        db.users.update_one({"_id": user_data["_id"]}, {"$set": {"subscribed": True}})
+
+
+def unsubscribe_user(db, user_data) -> None:
+    logging.info("Удаляем подписку в ДБ")
+    db.users.update_one({"_id": user_data["_id"]}, {"$set": {"subscribed": False}})
+
+
+def get_subscribed(db):
+    return db.users.find({"subscribed": True})

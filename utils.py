@@ -46,7 +46,7 @@ def play_random_number(user_number: int) -> str:
     return message
 
 
-def main_keyboard():
+def main_keyboard() -> None:
     return ReplyKeyboardMarkup(
         [
             [
