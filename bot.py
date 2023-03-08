@@ -44,7 +44,7 @@ def main():
     logging.info("Бот стартовал")
 
     jq = mybot.job_queue
-    jq.run_repeating(send_updates, interval=10, first=0)
+    jq.run_repeating(send_updates, interval=30, first=0)
 
     questionnaire = ConversationHandler(
         entry_points=[
