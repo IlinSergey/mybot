@@ -1,18 +1,15 @@
 import logging
-from glob import glob
 import os
+from glob import glob
 from random import choice
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
 from db import db, get_or_create_user, subscribe_user, unsubscribe_user
-from utils import (
-    find_constellation,
-    play_random_number,
-    main_keyboard,
-    has_object_on_image,
-)
+from jobs import alarm
+from utils import (find_constellation, has_object_on_image, main_keyboard,
+                   play_random_number)
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -42,7 +39,6 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def planet(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logging.info("Вызвана команда /planet")
-    user = get_or_create_user(db, update.effective_user, update.message.chat_id)
     keyboard = [
         [
             InlineKeyboardButton("Меркурий", callback_data="Mercury"),
@@ -73,7 +69,6 @@ async def take_constellation(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
 async def guess_number(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logging.info("Вызвана команда /guess_number")
-    user = get_or_create_user(db, update.effective_user, update.message.chat_id)
     if context.args:
         try:
             user_number = int(context.args[0])
@@ -87,7 +82,6 @@ async def guess_number(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def send_cat_picture(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logging.info("Вызвана команда /send_cat_picture")
-    user = get_or_create_user(db, update.effective_user, update.message.chat_id)
     cat_pictures_list = glob("images/cat*.jp*g")
     cat_picture_filename = choice(cat_pictures_list)
     await context.bot.send_photo(
@@ -114,7 +108,6 @@ async def check_user_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     - сохраняем фото в библиотеку
     """
     logging.info("Присланы фотография, обрабатываем")
-    user = get_or_create_user(db, update.effective_user, update.message.chat_id)
     await update.message.reply_text("Обрабатываем фото...")
     photo_file_from_messsage = await context.bot.get_file(
         update.message.photo[-1].file_id
@@ -141,3 +134,13 @@ async def unsubscribe(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = get_or_create_user(db, update.effective_user, update.message.chat_id)
     unsubscribe_user(db, user)
     await update.message.reply_text("Вы успешно отписались!")
+
+
+async def set_alarm(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    logging.info("Вызвана комманда /alarm")
+    try:
+        alarm_seconds = abs(int(context.args[0]))
+        context.job_queue.run_once(alarm, alarm_seconds, chat_id=update.message.chat.id)
+        await update.message.reply_text(f"Уведомление через {alarm_seconds} секунд")
+    except (ValueError, TypeError):
+        await update.message.reply_text("Введите целое число секунд после команды")

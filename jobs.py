@@ -1,7 +1,9 @@
-from telegram.ext import CallbackContext
 from datetime import datetime
-from db import db, get_subscribed
+
 from telegram.error import BadRequest
+from telegram.ext import CallbackContext, ContextTypes
+
+from db import db, get_subscribed
 
 
 async def send_updates(context: CallbackContext) -> None:
@@ -13,3 +15,7 @@ async def send_updates(context: CallbackContext) -> None:
             )
         except BadRequest:
             print(f"Чат {user['chat_id']} не найден.")
+
+
+async def alarm(context: ContextTypes.DEFAULT_TYPE):
+    await context.bot.send_message(chat_id=context._chat_id, text="Сработал таймер")

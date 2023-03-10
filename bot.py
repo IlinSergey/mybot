@@ -1,36 +1,19 @@
 import logging
+from datetime import time
 
-from telegram.ext import (
-    ApplicationBuilder,
-    CallbackQueryHandler,
-    CommandHandler,
-    ConversationHandler,
-    MessageHandler,
-    filters,
-)
+import pytz
+from telegram.ext import (ApplicationBuilder, CallbackQueryHandler,
+                          CommandHandler, ConversationHandler, MessageHandler,
+                          filters)
 
 from config import TG_API_KEY
-from handlers import (
-    check_user_photo,
-    echo,
-    guess_number,
-    planet,
-    send_cat_picture,
-    start,
-    take_constellation,
-    user_coordinates,
-    subscribe,
-    unsubscribe,
-)
-from questionnaire import (
-    questionnaire_comment,
-    questionnaire_dontknow,
-    questionnaire_name,
-    questionnaire_rating,
-    questionnaire_skip,
-    questionnaire_start,
-)
+from handlers import (check_user_photo, echo, guess_number, planet,
+                      send_cat_picture, set_alarm, start, subscribe,
+                      take_constellation, unsubscribe, user_coordinates)
 from jobs import send_updates
+from questionnaire import (questionnaire_comment, questionnaire_dontknow,
+                           questionnaire_name, questionnaire_rating,
+                           questionnaire_skip, questionnaire_start)
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -44,7 +27,15 @@ def main():
     logging.info("Бот стартовал")
 
     jq = mybot.job_queue
-    jq.run_repeating(send_updates, interval=30, first=0)
+    target_time = time(12, 0, tzinfo=pytz.timezone("Europe/Moscow"))
+    target_days = (
+        1,
+        2,
+        3,
+        4,
+        5,
+    )  # 0-6 correspond to sunday - saturday). By default, the job will run every day.
+    jq.run_daily(send_updates, target_time, target_days)
 
     questionnaire = ConversationHandler(
         entry_points=[
@@ -79,6 +70,7 @@ def main():
     mybot.add_handler(CommandHandler("cat", send_cat_picture))
     mybot.add_handler(CommandHandler("subscribe", subscribe))
     mybot.add_handler(CommandHandler("unsubscribe", unsubscribe))
+    mybot.add_handler(CommandHandler("alarm", set_alarm))
     mybot.add_handler(
         MessageHandler(filters.Regex("^(Прислать котика)$"), send_cat_picture)
     )
