@@ -6,7 +6,7 @@ import ephem
 from clarifai_grpc.channel.clarifai_channel import ClarifaiChannel
 from clarifai_grpc.grpc.api import resources_pb2, service_pb2, service_pb2_grpc
 from clarifai_grpc.grpc.api.status import status_code_pb2
-from telegram import KeyboardButton, ReplyKeyboardMarkup
+from telegram import KeyboardButton, ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
 
 from config import CLARYFAI_API_KEY, CLARYFAI_MODEL_ID_VERSION
 
@@ -79,6 +79,7 @@ def has_object_on_image(file_name: str, object_name: str) -> bool:
         ],
     )
     response = app.PostModelOutputs(request, metadata=metadata)
+    print(response)
     return check_response_for_object(response, object_name)
 
 
@@ -88,5 +89,16 @@ def check_response_for_object(response, object_name: str) -> bool:
             if concept.name == object_name and concept.value >= 0.90:
                 return True
     else:
-        print(f"Ошибка распознования картинки {response.ouputs[0].status.datails}")
+        print(f"Ошибка распознования картинки {response.outputs[0].status.datails}")
     return False
+
+
+def cat_rating_inline_keyboard(image_name: str):
+    callback_text = f"rating|{image_name}|"
+    keyboard = [
+        [
+            InlineKeyboardButton("Нравится", callback_data=callback_text + "1"),
+            InlineKeyboardButton("Не нравится", callback_data=callback_text + "-1")
+        ]
+    ]
+    return InlineKeyboardMarkup(keyboard)

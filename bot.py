@@ -9,7 +9,8 @@ from telegram.ext import (ApplicationBuilder, CallbackQueryHandler,
 from config import TG_API_KEY
 from handlers import (check_user_photo, echo, guess_number, planet,
                       send_cat_picture, set_alarm, start, subscribe,
-                      take_constellation, unsubscribe, user_coordinates)
+                      take_constellation, unsubscribe, user_coordinates,
+                      cat_picture_rating)
 from jobs import send_updates
 from questionnaire import (questionnaire_comment, questionnaire_dontknow,
                            questionnaire_name, questionnaire_rating,
@@ -71,6 +72,7 @@ def main():
     mybot.add_handler(CommandHandler("subscribe", subscribe))
     mybot.add_handler(CommandHandler("unsubscribe", unsubscribe))
     mybot.add_handler(CommandHandler("alarm", set_alarm))
+    mybot.add_handler(CallbackQueryHandler(cat_picture_rating, pattern="^(rating|)"))
     mybot.add_handler(
         MessageHandler(filters.Regex("^(Прислать котика)$"), send_cat_picture)
     )

@@ -6,10 +6,11 @@ from random import choice
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
-from db import db, get_or_create_user, subscribe_user, unsubscribe_user
+from db import (db, get_or_create_user, subscribe_user, unsubscribe_user,
+                save_cat_image_vote, user_voted, get_image_rating)
 from jobs import alarm
 from utils import (find_constellation, has_object_on_image, main_keyboard,
-                   play_random_number)
+                   play_random_number, cat_rating_inline_keyboard)
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -82,12 +83,22 @@ async def guess_number(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def send_cat_picture(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logging.info("Вызвана команда /send_cat_picture")
+    user = get_or_create_user(db, update.effective_user, update.message.chat_id)
     cat_pictures_list = glob("images/cat*.jp*g")
     cat_picture_filename = choice(cat_pictures_list)
+    if user_voted(db, cat_picture_filename, user["user_id"]):
+        rating = get_image_rating(db, cat_picture_filename)
+        keyboard = None
+        caption = f"Рейтинг картинки: {rating}"
+    else:
+        keyboard = cat_rating_inline_keyboard(cat_picture_filename)
+        caption = None
+
     await context.bot.send_photo(
         chat_id=update.effective_chat.id,
         photo=open(cat_picture_filename, mode="rb"),
-        reply_markup=main_keyboard(),
+        reply_markup=keyboard,
+        caption=caption
     )
 
 
@@ -107,7 +118,7 @@ async def check_user_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     Проверяем присланное фото, если на фото присутствует нужный обьект (по умолчанию 'cat')
     - сохраняем фото в библиотеку
     """
-    logging.info("Присланы фотография, обрабатываем")
+    logging.info("Прислана фотография, обрабатываем")
     await update.message.reply_text("Обрабатываем фото...")
     photo_file_from_messsage = await context.bot.get_file(
         update.message.photo[-1].file_id
@@ -144,3 +155,15 @@ async def set_alarm(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(f"Уведомление через {alarm_seconds} секунд")
     except (ValueError, TypeError):
         await update.message.reply_text("Введите целое число секунд после команды")
+
+
+async def cat_picture_rating(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    logging.info("Вызвана комманда рейтинг картинки")
+    query = update.callback_query
+    await query.answer()
+    callback_type, image_name, vote = update.callback_query.data.split("|")
+    vote = int(vote)
+    user = get_or_create_user(db, update.effective_user, update.effective_chat.id)
+    save_cat_image_vote(db, user, image_name, vote)
+    rating = get_image_rating(db, image_name)
+    await update.callback_query.edit_message_caption(caption=f"Рейтинг картинки: {rating}")
