@@ -78,8 +78,7 @@ def has_object_on_image(file_name: str, object_name: str) -> bool:
             )
         ],
     )
-    response = app.PostModelOutputs(request, metadata=metadata)
-    print(response)
+    response = app.PostModelOutputs(request, metadata=metadata)    
     return check_response_for_object(response, object_name)
 
 

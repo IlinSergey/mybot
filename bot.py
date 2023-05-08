@@ -72,13 +72,14 @@ def main():
     mybot.add_handler(CommandHandler("subscribe", subscribe))
     mybot.add_handler(CommandHandler("unsubscribe", unsubscribe))
     mybot.add_handler(CommandHandler("alarm", set_alarm))
-    mybot.add_handler(CallbackQueryHandler(cat_picture_rating, pattern="^(rating|)"))
+
     mybot.add_handler(
         MessageHandler(filters.Regex("^(Прислать котика)$"), send_cat_picture)
     )
     mybot.add_handler(MessageHandler(filters.LOCATION, user_coordinates))
     mybot.add_handler(MessageHandler(filters.PHOTO, check_user_photo))
 
+    mybot.add_handler(CallbackQueryHandler(cat_picture_rating, pattern="^(rating|)$"))
     mybot.add_handler(CallbackQueryHandler(take_constellation))
 
     mybot.add_handler(MessageHandler(filters.TEXT, echo))
