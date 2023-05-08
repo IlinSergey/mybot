@@ -35,4 +35,8 @@ USER_EMOJI = [
 8. `/unsubscribe` отписаться
 9. `/alarm {sec}` где sec - количество секунд, через которые сработает таймер (бот пришлет сообщение с текстом 'сработал таймер')
 10. При подписке бот присылает точное время (по умолчанию в 12:00 (Московское время) по будням. Корректируется в bot.py в переменных `target_time` и `target_days`)
-![](https://github.com/IlinSergey/mybot/blob/master/photo_for_readme/menu.png)
+
+![Меню](https://github.com/IlinSergey/mybot/blob/master/photo_for_readme/menu.png)
+![Проверка фото](https://github.com/IlinSergey/mybot/blob/master/photo_for_readme/check_dog.png)
+![Проверка фото](https://github.com/IlinSergey/mybot/blob/master/photo_for_readme/check_cat.png)
+![Команда "Прислать котика"](https://github.com/IlinSergey/mybot/blob/master/photo_for_readme/send_cat.png)
