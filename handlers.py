@@ -9,7 +9,7 @@ from telegram.ext import ContextTypes
 from db import (db, get_or_create_user, subscribe_user, unsubscribe_user,
                 save_cat_image_vote, user_voted, get_image_rating)
 from jobs import alarm
-from utils import (find_constellation, has_object_on_image, main_keyboard,
+from utils import (find_constellation, get_bot_number, has_object_on_image, main_keyboard,
                    play_random_number, cat_rating_inline_keyboard)
 
 logging.basicConfig(
@@ -73,7 +73,8 @@ async def guess_number(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if context.args:
         try:
             user_number = int(context.args[0])
-            message = play_random_number(user_number)
+            bot_number = get_bot_number(user_number)
+            message = play_random_number(user_number, bot_number)
         except (TypeError, ValueError):
             message = "Введите целое число"
     else:

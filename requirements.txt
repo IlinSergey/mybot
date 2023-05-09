@@ -4,3 +4,5 @@ python-telegram-bot==20.1
 emoji==2.2.0
 pymongo==4.3.3
 pytz==2022.7.1
+pytest==7.3.1
+pytest-mongodb==2.2.0

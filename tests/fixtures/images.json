@@ -1,0 +1,23 @@
+[{
+  "_id": {
+    "$oid": "6458a23b40ae44d3cb78d924"
+  },
+  "image_name": "images/cat_2.jpeg",
+  "votes": [
+    {
+      "user_id": 1055229700,
+      "vote": 1
+    }
+  ]
+},{
+  "_id": {
+    "$oid": "6458a76f571f9623798d2657"
+  },
+  "image_name": "images/cat_1.jpeg",
+  "votes": [
+    {
+      "user_id": 1055229700,
+      "vote": 1
+    }
+  ]
+}]

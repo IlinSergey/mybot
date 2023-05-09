@@ -35,8 +35,11 @@ def find_constellation(planet: str) -> tuple:
     return constellation
 
 
-def play_random_number(user_number: int) -> str:
-    bot_number = randint(user_number - 10, user_number + 10)
+def get_bot_number(user_number: int) -> int:
+    return randint(user_number - 10, user_number + 10)
+
+
+def play_random_number(user_number: int, bot_number: int) -> str:
     if bot_number < user_number:
         message = f"Ваше число {user_number}, мое число {bot_number}. Вы выиграли!"
     elif bot_number > user_number:

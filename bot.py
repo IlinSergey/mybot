@@ -25,6 +25,7 @@ logging.basicConfig(
 
 def main():
     mybot = ApplicationBuilder().token(TG_API_KEY).build()
+
     logging.info("Бот стартовал")
 
     jq = mybot.job_queue

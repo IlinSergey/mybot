@@ -1,0 +1,23 @@
+[{
+  "_id": {
+    "$oid": "6408d3a41cb4e37aab903967"
+  },
+  "user_id": 1055229700,
+  "first_name": "Сергей",
+  "last_name": "Ильин",
+  "username": "Sergey_IlinVBG",
+  "chat_id": 1055229700,
+  "emoji": "🐱",
+  "subscribed": false,
+  "questionnaire": [
+    {
+      "name": "Сергей Ильин",
+      "rating": 5,
+      "created": {
+        "$date": {
+          "$numberLong": "1681763126621"
+        }
+      }
+    }    
+  ]
+}]
